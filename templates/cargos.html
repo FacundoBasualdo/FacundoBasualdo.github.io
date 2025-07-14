@@ -1,166 +1,239 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestión de Cargos</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../static/estilo_base.css">
-</head>
-<body>
-    <!-- Barra de Navegación -->
-    <nav class="navbar navbar-expand-lg" style="background-color: var(--color-primario);">
-      <div class="container">
-        <a class="navbar-brand text-white" href="../index.html">Mi Empresa</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="nav-links">
-          <a href="index.html">🏠 Inicio</a>
-          <a href="#">⚙️ Configuración</a>
-          <a href="iniciar_sesion.html">🚪 Cerrar Sesión</a>
-      </div>
-      </div>
-    </nav>
+{% extends "base.html"%}
+{% load widget_tweaks %}
+
+  {% block title %}Gestión de Cargos{% endblock %}
+  
+  {% block content %}
 
   <div class="container my-5">
     <h1 class="mb-4" style="color: var(--color-primario);">Gestión de Cargos</h1>
 
     <!-- Botón para Crear -->
-    <button type="button" class="btn mb-3" style="background-color: var(--color-primario); color: white;" data-bs-toggle="modal" data-bs-target="#modalCargo">
+    <button type="button" class="btn mb-3 btn-primary" data-bs-toggle="modal" data-bs-target="#modalCargo">
       + Crear Nuevo Cargo
     </button>
 
     <!-- Tabla de Cargos -->
-    <div class="table-responsive">
-      <table class="table table-bordered text-center">
-        <thead style="background-color: var(--color-suave);">
-          <tr>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Sueldo</th>
-            <th>Vacantes</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Tecnico de Infraestructura</td>
-            <td>Encargado de resolver problemas y realizar el mantenimiento de la Infraestructura</td>
-            <td>$1500,00</td>
-            <td>1</td>
-            <td>
-              <button class="btn btn-sm" style="background-color: var(--color-secundario); color: white;" data-bs-toggle="modal" data-bs-target="#modalCargo">Editar</button>
-              <button class="btn btn-sm" style="background-color: var(--color-enfasis); color: white;" data-bs-toggle="modal" data-bs-target="#modalVerCargo1">Ver</button>
-              <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarCargo">Eliminar</button>
-            </td>
-          </tr>
-          <!-- Ejemplo adicional -->
-          <tr>
-            <td>Personal de Limpieza</td>
-            <td>Encargado de mantener la limpieza e higiene del lugar de trabajo</td>
-            <td>$800,00</td>
-            <td>1</td>
-            <td>
-              <button class="btn btn-sm" style="background-color: var(--color-secundario); color: white;" data-bs-toggle="modal" data-bs-target="#modalCargo">Editar</button>
-              <button class="btn btn-sm" style="background-color: var(--color-enfasis); color: white;" data-bs-toggle="modal" data-bs-target="#modalVerCargo2">Ver</button>
-              <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarCargo">Eliminar</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered align-middle mb-0">
+            <thead class="table-light text-center">
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Sueldo</th>
+                <th>Departamento</th>
+                <th>Vacantes</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cargo in cargos %}
+              <tr>
+                <td>{{ cargo.nombre }}</td>
+                <td>{{ cargo.descripcion }}</td>
+                <td>
+                  {% if cargo.sueldo_base %}
+                    ${{ cargo.sueldo_base }}
+                  {% else %}
+                    Sin sueldo registrado
+                  {% endif %}
+                </td>
+                <td>{{ cargo.departamento }}</td>
+                <td>{{ cargo.vacante }}</td>
+                <td>
+                  <div class="d-flex justify-content-center gap-2">
+                    <!-- Botón Editar -->
+                    <button class="btn btn-sm btn-outline-secondary"
+                            data-bs-toggle="modal" data-bs-target="#modalCargo"
+                            data-id="{{ cargo.id }}"
+                            data-nombre="{{ cargo.nombre }}"
+                            data-descripcion="{{ cargo.descripcion }}"
+                            data-sueldo="{{ cargo.sueldo_base }}"
+                            data-departamento="{{ cargo.departamento_id }}"
+                            data-vacante="{{ cargo.vacante }}"
+                            onclick="editarCargo(this)"
+                            data-bs-toggle="tooltip" title="Editar">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
 
-  <!-- Modal para Crear/Actualizar -->
-  <div class="modal fade" id="modalCargo" tabindex="-1" aria-labelledby="modalCargoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header" style="background-color: var(--color-primario); color: white;">
-          <h5 class="modal-title" id="modalCargoLabel">Crear/Editar Cargo</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <!-- Botón Ver -->
+                    <button class="btn btn-sm btn-outline-info"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalVerCargo{{ cargo.id }}"
+                            data-bs-toggle="tooltip" title="Ver">
+                      <i class="bi bi-eye"></i>
+                    </button>
+
+                    <!-- Botón Eliminar -->
+                    <button class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminarCargo"
+                            data-id="{{ cargo.id }}"
+                            data-bs-toggle="tooltip" title="Eliminar">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        <div class="modal-body">
-          <form>
-            <div class="mb-3">
-              <label for="nombreCargo" class="form-label">Nombre</label>
-              <input type="text" class="form-control" id="nombreCargo" placeholder="Ej. Operario" required>
+      </div>
+    </div>
+
+    <!-- Modal para Crear/Editar Cargo -->
+    <div class="modal fade" id="modalCargo" tabindex="-1" aria-labelledby="modalCargoLabel" aria-hidden="true">
+      <div class="modal-dialog" style="margin-top: 6rem;">
+        <div class="modal-content">
+          <form method="post" action="{% url 'crear_cargo' %}" id="formCargo">
+            {% csrf_token %}
+            <div class="modal-header" style="background-color: #3c8dbc;">
+              <h5 class="modal-title text-white" id="modalCargoLabel">Crear/Editar Cargo</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="mb-3">
-              <label for="descripcionCargo" class="form-label">Descripción</label>
-              <textarea class="form-control" id="descripcionCargo" rows="3" placeholder="Ingresa una breve descripción" required></textarea>
+            <input type="hidden" name="id_cargo" id="id_cargo">
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="id_nombre" class="form-label">Nombre</label>
+                {{ form.nombre }}
+              </div>
+              <div class="mb-3">
+                <label for="id_descripcion" class="form-label">Descripción</label>
+                {{ form.descripcion }}
+              </div>
+              <div class="mb-3">
+                <label for="id_sueldo_base" class="form-label">Sueldo Base</label>
+                {{ form.sueldo_base }}
+              </div>
+              <div class="mb-3">
+                <label for="id_vacante" class="form-label">Vacantes</label>
+                {{ form.vacante }}
+              </div>
+              <div class="mb-3">
+                <label for="id_departamento" class="form-label">Departamento</label>
+                {{ form.departamento }}
+              </div>
             </div>
-            <div class="mb-3">
-              <label for="vacantesCargo" class="form-label">Vacantes</label>
-              <input type="number" class="form-control" id="vacantesCargo" placeholder="Ingresa la cantidad de Vacantes. Ej. 2" required>
+            <div class="modal-footer bg-light">
+              <button type="submit" class="btn btn-success w-100 fw-bold">  
+                <i class="bi bi-save"></i> Guardar
+              </button>
             </div>
-            <div class="mb-3">
-              <label for="SueldoCargo" class="form-label">Sueldo</label>
-              <input type="number" class="form-control" id="SueldoCargo" placeholder="Ingrese el sueldo del Cargo. Ej. 1000" required>
-            </div>
-            <button type="submit" class="btn w-100" style="background-color: var(--color-primario); color: white;">Guardar</button>
           </form>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Modal para Ver Detalles -->
-  <div class="modal fade" id="modalVerCargo1" tabindex="-1" aria-labelledby="modalVerCargo1Label" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header" style="background-color: var(--color-primario); color: white;">
-          <h5 class="modal-title" id="modalVerCargo1Label">Detalles del Cargo</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p><strong>Nombre:</strong> Tecnico de Infraestructura</p>
-          <p><strong>Descripción:</strong> Encargado de resolver problemas y realizar el mantenimiento de la Infraestructura</p>
-          <p><strong>Sueldo:</strong> $1500,00</p>
-          <p><strong>Vigencia Sueldo desde:</strong> 01-01-2025</p>
-          <p><strong>Vacantes:</strong> 1</p>
+
+    <!-- Modal para Ver Detalles -->
+    {% for cargo in cargos %}
+    <div class="modal fade" id="modalVerCargo{{ cargo.id }}" tabindex="-1" aria-labelledby="modalVerCargo{{ cargo.id }}Label" aria-hidden="true">
+      <div class="modal-dialog" style="margin-top: 6rem;">
+        <div class="modal-content">
+          <div class="modal-header" style="background-color: #3c8dbc;">
+            <h5 class="modal-title text-white" id="modalVerCargo{{ cargo.id }}Label">Detalles del Cargo</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Nombre:</strong> {{ cargo.nombre }}</p>
+            <p><strong>Descripción:</strong> {{ cargo.descripcion }}</p>
+            <p><strong>Sueldo Base:</strong> 
+                {% if cargo.sueldo_base %}
+                  ${{ cargo.sueldo_base }}
+                {% else %}
+                  Sin sueldo registrado
+                {% endif %}
+            </p>
+            <p><strong>Departamento:</strong> {{ cargo.departamento }}</p>
+            <p><strong>Vacantes:</strong> {{ cargo.vacante }}</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+    {% endfor %}
 
-  <div class="modal fade" id="modalVerCargo2" tabindex="-1" aria-labelledby="modalVerCargo2Label" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header" style="background-color: var(--color-primario); color: white;">
-          <h5 class="modal-title" id="modalVerCargo2Label">Detalles del Cargo</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p><strong>Nombre:</strong> Personal de Limpieza</p>
-          <p><strong>Descripción:</strong> Encargado de mantener la limpieza e higiene del lugar de trabajo</p>
-          <p><strong>Sueldo:</strong> $800,00</p>
-          <p><strong>Vigencia Sueldo desde:</strong> 15-12-2024</p>
-          <p><strong>Vacantes:</strong> 1</p>
+
+    <!-- Modal para Confirmar Eliminación -->
+    <div class="modal fade" id="modalEliminarCargo" tabindex="-1" aria-labelledby="modalEliminarCargoLabel" aria-hidden="true">
+      <div class="modal-dialog" style="margin-top: 12rem;">
+        <div class="modal-content">
+          <div class="modal-header" style="background-color: #3c8dbc;">
+            <h5 class="modal-title text-white" id="modalEliminarCargoLabel">Confirmar Eliminación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>¿Estás seguro de que deseas eliminar este Cargo?</p>
+          </div>
+          <div class="modal-footer">
+            <form id="formEliminarCargo" method="post">
+              {% csrf_token %}
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Modal para Confirmar Eliminación -->
-  <div class="modal fade" id="modalEliminarCargo" tabindex="-1" aria-labelledby="modalEliminarCargoLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header" style="background-color: var(--color-enfasis); color: white;">
-          <h5 class="modal-title" id="modalEliminarCargoLabel">Confirmar Eliminación</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p>¿Estás seguro de que deseas eliminar este Cargo?</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-danger">Eliminar</button>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        const modalEliminar = document.getElementById('modalEliminarCargo');
+        modalEliminar.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const cargoId = button.getAttribute('data-id');
+        const form = document.getElementById('formEliminarCargo');
+        form.action = `/cargos/${cargoId}/eliminar/`;
+      });
+    });
+
+
+    const modalCrearEditar = document.getElementById('modalCargo');
+
+    modalCrearEditar.addEventListener('show.bs.modal', function (event) {
+      const triggerButton = event.relatedTarget;
+
+      if (!triggerButton.getAttribute('data-id')) {
+        limpiarFormulario();
+      }
+    });
+
+    function limpiarFormulario() {
+      const form = document.getElementById('formCargo');
+      form.reset();
+      document.getElementById('id_cargo').value = '';
+      document.getElementById('modalCargoLabel').textContent = 'Crear Nuevo Cargo';
+      document.querySelector('#formCargo button[type="submit"]').textContent = 'Guardar';
+    }
+
+
+    function editarCargo(button) {
+      const cargoId = button.getAttribute('data-id');
+      const nombre = button.getAttribute('data-nombre');
+      const descripcion = button.getAttribute('data-descripcion');
+      const sueldo = parseFloat(button.getAttribute('data-sueldo'));
+      const departamento = button.getAttribute('data-departamento');
+      const vacante = parseInt(button.getAttribute('data-vacante'));
+
+      document.getElementById('id_cargo').value = cargoId || '';
+      document.getElementById('id_nombre').value = nombre || '';
+      document.getElementById('id_descripcion').value = descripcion || '';
+      document.getElementById('id_sueldo_base').value = isNaN(sueldo) ? '' : sueldo;
+      document.getElementById('id_departamento').value = departamento || '';
+      document.getElementById('id_vacante').value = isNaN(vacante) ? '' : vacante;
+
+      document.getElementById('modalCargoLabel').textContent = 'Editar Cargo';
+      document.querySelector('#formCargo button[type="submit"]').textContent = 'Actualizar';
+    }
+
+    </script>
+  {% endblock %}
 </body>
 </html>

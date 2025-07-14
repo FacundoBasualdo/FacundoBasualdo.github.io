@@ -1,35 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cálculo de Nóminas</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../static/estilo_base.css">
-  <style>
-    /* Asegurar que todas las columnas tengan el mismo tamaño */
-    .tabla-nominas th, .tabla-nominas td {
-      width: 20%;
-      text-align: center;
-      vertical-align: middle;
-    }
-  </style>
-</head>
-<body>
-    <!-- Barra de Navegación -->
-    <nav class="navbar navbar-expand-lg" style="background-color: var(--color-primario);">
-      <div class="container">
-        <a class="navbar-brand text-white" href="../index.html">Mi Empresa</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="nav-links">
-          <a href="index.html">🏠 Inicio</a>
-          <a href="#">⚙️ Configuración</a>
-          <a href="iniciar_sesion.html">🚪 Cerrar Sesión</a>
-      </div>
-      </div>
-    </nav>
+<{% extends "base.html"%}
+
+  {% block title %}Cálculo de Nóminas{% endblock %}
+  
+  {% block content %}
 
   <div class="container my-5">
     <h1 class="mb-4" style="color: var(--color-primario);">Cálculo de Nóminas</h1>
@@ -80,7 +53,6 @@
       </div>
     </div>
   </div>
-
 
   <script>
     // Ejemplo de datos de empleados
@@ -192,5 +164,6 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  {% endblock %}
 </body>
 </html>
